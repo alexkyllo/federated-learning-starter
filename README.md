@@ -11,7 +11,7 @@ A demo and starter project for federated learning with the Flower framework
 
 `pip install -r requirements.txt`
 
-## Flower 
+## Flower
 
 Flower [[website](https://flower.dev/)]
 [[github repo](https://github.com/adap/flower)] is a lightweight Python
@@ -23,11 +23,8 @@ TensorFlow, PyTorch, XGBoost, scikit-learn, etc.
 Flower at the highest level consists of a central server and one or more clients
 that communicate with the server over gRPC.
 
-The server 
-
 #### Client
 
-A client in Flower is 
 
 #### Server
 
