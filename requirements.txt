@@ -1,1 +1,3 @@
-flower
+flwr
+loguru
+scikit-learn
