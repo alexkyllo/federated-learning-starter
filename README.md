@@ -25,7 +25,16 @@ that communicate with the server over gRPC.
 
 #### Client
 
+A Client is a device or process that participates in a federated training round,
+by fitting the global model to its local data and then sending the updated
+parameters back to the server.
 
+In this demo, the clients are just local processes running a Python script; in a
+real-world application, the clients could be a mobile application that runs on
+users' smartphones. Flower provides an Android SDK and offers an
+[example app](https://github.com/adap/flower/tree/main/examples/android) to help
+you get started if you want to run it in a mobile setting.
 #### Server
+
 
 #### Strategy
