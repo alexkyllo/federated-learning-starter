@@ -57,12 +57,12 @@ class MyClient(NumPyClient):
         return
 
 
-def load_data(client_id: int):
+def load_data(cid: int, num_clients: int):
     """Get a subset of the training data for one client."""
     X, y = fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.7)
-
-    return ((X_train, y_train), (x_test), y_test))
+    # TODO: return 1 / num_clients split of the data
+    return ((X_train, y_train), (X_test, y_test))
 
 
 def start_client(cid: int, batch_size: int):
