@@ -61,11 +61,8 @@ def load_data(client_id: int):
     """Get a subset of the training data for one client."""
     X, y = fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.7)
-    train_x = []
-    train_y = []
-    test_x = []
-    test_y = []
-    return ((train_x, train_y), (test_x, test_y))
+
+    return ((X_train, y_train), (x_test), y_test))
 
 
 def start_client(cid: int, batch_size: int):
