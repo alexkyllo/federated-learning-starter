@@ -1,7 +1,9 @@
 import argparse
+
 from flwr.client import NumPyClient
 from flwr.common.typing import Config, Dict, NDArrays, Scalar, Tuple
 from loguru import logger
+from sklearn.datasets import load_digits
 
 from model import MyClassifier
 
@@ -13,7 +15,7 @@ class MyClient(NumPyClient):
         self.model = model
         self.cid = cid
 
-     def set_parameters(self, parameters: NDArrays) -> None:
+    def set_parameters(self, parameters: NDArrays) -> None:
         """Set the PyTorch module parameters from a list of NumPy arrays.
         Parameters
         ----------
@@ -70,6 +72,7 @@ def start_client(cid: int, batch_size: int):
     client = MyClient(model, cid)
     logger.info("Starting client # {}", cid)
 
+
 def get_args():
     """Get command-line arguments."""
     parser = argparse.ArgumentParser(description="Flower Client for demo.")
@@ -85,6 +88,8 @@ def get_args():
         help="Total number of clients for federated training.",
     )
     parser.add_argument("--batch-size", default=32, type=int, help="Batch size")
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = get_args()
