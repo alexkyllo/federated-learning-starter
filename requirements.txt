@@ -1,4 +1,3 @@
 flwr
 loguru
-scikit-learn
-tqdm
+tensorflow
