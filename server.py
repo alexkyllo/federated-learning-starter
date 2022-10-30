@@ -10,15 +10,15 @@ from model import MyClassifier
 def get_initial_params() -> Parameters:
     """Get initial model parameters (weights)."""
     model = MyClassifier(batch_size=32)
-    init_weights = model.initialize_parameters(784, 10).get_parameters()
-    breakpoint()
+    # init_weights = model.initialize_parameters(784, 10).get_parameters()
+    init_weights = model.get_parameters()
     init_param = ndarrays_to_parameters(init_weights)
     return init_param
 
 
 def main():
     """Start the server."""
-    rounds = 10
+    rounds = 3
     min_fit_clients = 2
     min_available_clients = 2
     init_params = get_initial_params()

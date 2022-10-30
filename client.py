@@ -27,11 +27,11 @@ class MyClient(NumPyClient):
     def fit(self, parameters, config=None):
         self.model.set_parameters(parameters)
         for _ in tqdm(range(self.epochs)):
-            self.model.fit(self.X_train, self.y_train)
+            self.model.fit(self.X_train, self.y_train, self.epochs)
         return self.model.get_parameters(), len(self.y_train), {}
 
     def evaluate(self, parameters, config=None):
-        set_parameters(self.model, parameters)
+        self.model.set_parameters(parameters)
         loss = log_loss(np.int32(self.y_test), self.model.predict_proba(self.X_test))
         accuracy = self.model.score(self.X_test, self.y_test)
         return float(loss), len(self.y_test), {"accuracy": float(accuracy)}
@@ -53,7 +53,7 @@ def start_client(cid: int, num_clients: int, batch_size: int, epochs: int):
     """Start a client for training."""
     model = MyClassifier(batch_size)
     data = load_data(cid, num_clients)
-    model.initialize_parameters(784, 10)
+    # model.initialize_parameters(784, 10)
     X_train, X_test, y_train, y_test = train_test_split(data[0], data[1], test_size=0.2)
     client = MyClient(model, cid, (X_train, y_train), (X_test, y_test), epochs)
     logger.info("Starting client # {}", cid)
