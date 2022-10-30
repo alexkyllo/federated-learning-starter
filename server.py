@@ -4,10 +4,14 @@ from flwr.common.typing import Parameters
 from flwr.server import ServerConfig, start_server
 from flwr.server.strategy import FedAvg
 
+from model import MyClassifier
+
 
 def get_initial_params() -> Parameters:
     """Get initial model parameters (weights)."""
-    init_weights = []  # TODO, get these from the model
+    model = MyClassifier(batch_size=32)
+    init_weights = model.initialize_parameters(784, 10).get_parameters()
+    breakpoint()
     init_param = ndarrays_to_parameters(init_weights)
     return init_param
 

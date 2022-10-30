@@ -1,76 +1,63 @@
+# %%
 import argparse
 
-from flwr.client import NumPyClient
+import numpy as np
+from flwr.client import NumPyClient, start_numpy_client
 from flwr.common.typing import Config, Dict, NDArrays, Scalar, Tuple
 from loguru import logger
 from sklearn.datasets import fetch_openml
+from sklearn.metrics import log_loss
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 from model import MyClassifier
 
 
 class MyClient(NumPyClient):
-    """A simple flower client for demonstration purposes."""
-
-    def __init__(self, model, cid: int) -> None:
+    def __init__(self, model, cid, train_data, test_data, epochs):
         self.model = model
         self.cid = cid
+        self.X_train, self.y_train = train_data
+        self.X_test, self.y_test = test_data
+        self.epochs = epochs
 
-    def set_parameters(self, parameters: NDArrays) -> None:
-        """Set the PyTorch module parameters from a list of NumPy arrays.
-        Parameters
-        ----------
-        parameters: List[numpy.ndarray]
-            The desired local model parameters as a list of NumPy ndarrays.
-        """
-        # TODO
+    def get_parameters(self, config=None):
+        return self.model.get_parameters()
 
-    def get_parameters(self, config: Dict[str, Scalar]) -> NDArrays:
-        """Return the current local model parameters.
+    def fit(self, parameters, config=None):
+        self.model.set_parameters(parameters)
+        for _ in tqdm(range(self.epochs)):
+            self.model.fit(self.X_train, self.y_train)
+        return self.model.get_parameters(), len(self.y_train), {}
 
-        Parameters
-        ----------
-        config : Config
-            Configuration parameters requested by the server.
-            This can be used to tell the client which parameters
-            are needed along with some Scalar attributes.
-
-        Returns
-        -------
-        parameters : NDArrays
-            The local model parameters as a list of NumPy ndarrays.
-        """
-        return
-
-    def get_properties(self, config: Config) -> Dict[str, Scalar]:
-
-        return
-
-    def fit(
-        self, parameters: NDArrays, config: Dict[str, Scalar]
-    ) -> Tuple[NDArrays, int, Dict[str, Scalar]]:
-        return
-
-    def evaluate(
-        self, parameters: NDArrays, config: Dict[str, Scalar]
-    ) -> Tuple[float, int, Dict[str, Scalar]]:
-        return
+    def evaluate(self, parameters, config=None):
+        set_parameters(self.model, parameters)
+        loss = log_loss(np.int32(self.y_test), self.model.predict_proba(self.X_test))
+        accuracy = self.model.score(self.X_test, self.y_test)
+        return float(loss), len(self.y_test), {"accuracy": float(accuracy)}
 
 
 def load_data(cid: int, num_clients: int):
     """Get a subset of the training data for one client."""
+    logger.info("Fetching data...")
     X, y = fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.7)
-    # TODO: return 1 / num_clients split of the data
-    return ((X_train, y_train), (X_test, y_test))
+    X = X.astype(np.float32)
+    y = y.astype(np.float32)
+    X = X / 255.0  # normalize the pixel intensities to range [0,1]
+    X_splits = np.array_split(X, num_clients)
+    y_splits = np.array_split(y, num_clients)
+    return X_splits[cid], y_splits[cid]
 
 
-def start_client(cid: int, batch_size: int):
+def start_client(cid: int, num_clients: int, batch_size: int, epochs: int):
     """Start a client for training."""
     model = MyClassifier(batch_size)
-    train_data, test_data = load_data(cid)
-    client = MyClient(model, cid)
+    data = load_data(cid, num_clients)
+    model.initialize_parameters(784, 10)
+    X_train, X_test, y_train, y_test = train_test_split(data[0], data[1], test_size=0.2)
+    client = MyClient(model, cid, (X_train, y_train), (X_test, y_test), epochs)
     logger.info("Starting client # {}", cid)
+    start_numpy_client(server_address="0.0.0.0:8080", client=client)
 
 
 def get_args():
@@ -88,11 +75,17 @@ def get_args():
         help="Total number of clients for federated training.",
     )
     parser.add_argument("--batch-size", default=32, type=int, help="Batch size")
+    parser.add_argument(
+        "--epochs", default=10, type=int, help="Epochs to run on each client round."
+    )
     return parser.parse_args()
 
 
+# %%
 if __name__ == "__main__":
     args = get_args()
     cid = int(args.cid)
+    num_clients = int(args.num_clients)
     batch_size = int(args.batch_size)
-    start_client(cid, batch_size)
+    epochs = int(args.epochs)
+    start_client(cid, num_clients, batch_size, epochs)
