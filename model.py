@@ -33,13 +33,15 @@ class MyClassifier:
         """Get the model's parameters as a list of numpy arrays."""
         try:
             check_is_fitted(self.module)
-            coefs = self.module.coefs_
-            intercepts = self.module.intercepts_
         except NotFittedError:
+            self.initialize_parameters()
             # generate random parameters for initialization
-            dims = (784, *self.module.hidden_layer_sizes, 10)
-            coefs = [np.random.rand(dims[i], dims[i + 1]) for i in range(len(dims[:-1]))]
-            intercepts = [np.random.rand(dims[i + 1]) for i in range(len(dims[:-1]))]
+
+        intercepts = self.module.intercepts_
+        coefs = self.module.coefs_
+        # dims = (784, *self.module.hidden_layer_sizes, 10)
+        # coefs = [np.random.rand(dims[i], dims[i + 1]) for i in range(len(dims[:-1]))]
+        # intercepts = [np.random.rand(dims[i + 1]) for i in range(len(dims[:-1]))]
         return [val for pair in zip(coefs, intercepts) for val in pair]
 
     def set_parameters(self, parameters: NDArrays):
@@ -48,17 +50,17 @@ class MyClassifier:
         self.module.intercepts_ = parameters[1::2]
         return self
 
-    def initialize_parameters(self, input_dim, output_dim):
+    def initialize_parameters(self, input_dim=784, output_dim=10):
         """Initialize the model parameters to start training."""
-        self._initialize()
         dims = (input_dim, *self.module.hidden_layer_sizes, output_dim)
+        self.module._initialize(np.zeros((1, 10)), dims, np.float32)
         self.module.coefs_ = [np.random.rand(dims[i], dims[i + 1]) for i in range(len(dims[:-1]))]
         self.module.intercepts_ = [np.random.rand(dims[i + 1]) for i in range(len(dims[:-1]))]
-        self.module.n_layers_ = len(self.module.coefs_) + 1
-        self.module.out_activation_ = "softmax"
-        self.module.n_iter_ = 0
-        self.module.t_ = 0
-        self.module.loss_curve_ = []
-        self.module.loss_ = np.inf
-        self.module.best_loss_ = np.inf
+        # self.module.n_layers_ = len(self.module.coefs_) + 1
+        # self.module.out_activation_ = "softmax"
+        # self.module.n_iter_ = 0
+        # self.module.t_ = 0
+        # self.module.loss_curve_ = []
+        # self.module.loss_ = np.inf
+        # self.module.best_loss_ = np.inf
         return self
