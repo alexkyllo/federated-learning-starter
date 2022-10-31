@@ -1,3 +1,4 @@
-flwr
-loguru
+flwr[simulation]
+matplotlib
+numpy
 tensorflow
