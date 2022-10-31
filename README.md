@@ -1,15 +1,12 @@
 # federated-learning-starter
 
-A demo and starter project for federated learning with the Flower framework
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alexkyllo/federated-learning-starter/blob/main/flower_tutorial.ipynb)
 
+A demo and starter project for federated learning with the Flower framework
 ## Prerequisites
 
 - Have Python installed (optionally via [Anaconda](https://www.anaconda.com/products/distribution))
-- Know how to install Python packages using `pip install` or `conda install`
-
-## Setup
-
-`pip install -r requirements.txt`
+- Or, just create an account at Google Colab and run the notebook there
 
 ## Flower
 
